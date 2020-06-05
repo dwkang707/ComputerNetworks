@@ -67,11 +67,11 @@ int main(int argc, char *argv[])
         if (n < 0)
             error("ERROR reading from socket");
         
+        if(!strcmp(&buffer[0], "GET /index.html HTTP/1.1")) //GET /\0일때
+            printf("hello\n"); 
         printf("%s\n", buffer);
-
-        printf("%s\n", buffer[1]);
          
-        n = write(newsockfd,"I got your message",18); //NOTE: write function returns the number of bytes actually sent out �> this might be less than the number you told it to send
+        n = write(newsockfd,"I got your message",18); //NOTE: write function returns the number of bytes actually sent out Ñ> this might be less than the number you told it to send
         if (n < 0)
             error("ERROR writing to socket");
          
