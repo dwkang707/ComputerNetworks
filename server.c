@@ -52,21 +52,24 @@ int main(int argc, char *argv[])
     listen(sockfd,5); // Listen for socket connections. Backlog queue (connections to wait) is 5
      
     clilen = sizeof(cli_addr);
-    /*accept function: 
-      1) Block until a new connection is established
-      2) the new socket descriptor will be used for subsequent communication with the newly connected client.
-    */
+    
     while (1) {
+        /*accept function: 
+          1) Block until a new connection is established
+          2) the new socket descriptor will be used for subsequent communication with the newly connected client.
+        */
         newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
         if (newsockfd < 0) 
             error("ERROR on accept");
          
-        bzero(buffer,256);
-        n = read(newsockfd,buffer,255); //Read is a block function. It will read at most 255 bytes
+        bzero(buffer, 256);
+        n = read(newsockfd, buffer, 255); //Read is a block function. It will read at most 255 bytes
         if (n < 0)
             error("ERROR reading from socket");
         
-        printf("%s\n",buffer);
+        printf("%s\n", buffer);
+
+        printf("%s\n", buffer[1]);
          
         n = write(newsockfd,"I got your message",18); //NOTE: write function returns the number of bytes actually sent out Ñ> this might be less than the number you told it to send
         if (n < 0)
