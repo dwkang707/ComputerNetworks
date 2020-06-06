@@ -164,12 +164,13 @@ int main(int argc, char *argv[])
             read(newsockfd, buffer, 2047);
             printf("%s\n", buffer);
 
-            if (!strncmp(buffer, "GET /index.html", 16)) {
+            // strncmp(A, B, size_t n): A와 B 문자열을 n 만큼 비교
+            if (!strncmp(buffer, "GET /index.html", 15)) {
                 fd = open("index.html", O_RDONLY);
                 sendfile(newsockfd, fd, NULL, 1000);
                 close(fd);
             }
-            else if (!strncmp(buffer, "GET /image.jpg", 16)) {
+            else if (!strncmp(buffer, "GET /image.jpg", 15)) {
                 fd = open("image.jpg", O_RDONLY);
                 sendfile(newsockfd, fd, NULL, 35000);
                 close(fd);
