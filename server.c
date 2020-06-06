@@ -22,7 +22,8 @@ void SendErrorMSG(int sock) // Error 처리
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     char protocol[] = "HTTP/1.1 400 Bad Request\r\n";
     char servName[] = "Server:simple web server\r\n";
-    char cntLen[] = "Content-type:text/html\r\n\r\n";
+    char cntLen[] = "Content-length:2048\r\n";
+    char cntType[] = "Content-type:text/html\r\n\r\n";
     char content[] = "<html><head><title>Computer Network</title></head>"
         "<body><font size=5><br>에러. 요청 파일이나 요청 방식 확인."
         "</font></body></html>";
@@ -33,6 +34,19 @@ void SendErrorMSG(int sock) // Error 처리
     write(sock, content, strlen(content));
     close(sock);
 }
+
+char* ContentType(char* file) // Content-Type 구분
+{
+    char extension[BUF_SIZE];
+    char filename[BUF_SIZE];
+    strcpy(filename, file);
+    strtok(filename, ".");
+    strcpy(extension, strtok(NULL, "."));
+    if (!strcmp(extension, "html") || !strcmp(extension, "htm"))
+        return "text/html";
+    else
+        return "text/plain";
+} 
 
 void *socketThread(void *arg)
 {
@@ -47,7 +61,6 @@ void *socketThread(void *arg)
         SendErrorMSG(sock); // 현재 소켓 에러 메시지 출력
         close(sock); // HTTP 요청이 아니어서 통신 종료시킴
         exit(1); // 함수를 빠져 나옴
-        return;
     }
     strcpy(method, strtok(buf, " /"));
     if (strcmp(method, "GET")) // GET 방식 요청인지 확인
@@ -84,18 +97,7 @@ void SendData(int sock, char* ct, char* filename)
     close(sock); // HTTP protocol에 의해 응답 후 종료
 }
 
-char* ContentType(char* file) // Content-Type 구분
-{
-    char extension[BUF_SIZE];
-    char filename[BUF_SIZE];
-    strcpy(filename, file);
-    strtok(filename, ".");
-    strcpy(extension, strtok(NULL, "."));
-    if (!strcmp(extension, "html") || !strcmp(extension, "htm"))
-        return "text/html";
-    else
-        return "text/plain";
-}   
+  
 
 int main(int argc, char *argv[])
 {
