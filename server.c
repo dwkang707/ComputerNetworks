@@ -10,11 +10,92 @@
 #include <stdlib.h>
 #include <string.h>
 #define BUF_SIZE 1024
+
 void error(char *msg)
 {
     perror(msg);
     exit(1);
 }
+
+void *socketThread(void *arg)
+{
+    int sock = *((int *)arg);
+    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    char buf[BUF_SIZE]; // 요청 메시지
+    char method[BUF_SIZE]; // GET, POST 방식 저장
+    char ct[BUF_SIZE]; // Content-Type 저장
+    char filename[BUF_SIZE]; // 요청한 파일 이름 저장
+    read(sock, buf, BUF_SIZE - 1);
+    if (strstr(buf, "HTTP/") == NULL) { // HTTP 요청인지 확인
+        SendErrorMSG(sock); // 현재 소켓 에러 메시지 출력
+        close(sock); // HTTP 요청이 아니어서 통신 종료시킴
+        return 1;
+    }
+    strcpy(method, strtok(buf, " /"));
+    if (strcmp(method, "GET")) // GET 방식 요청인지 확인
+        SendErrorMSG(sock); // 현재 소켓 에러 메시지 출력
+    strcpy(filename, strtok(NULL, " /")); // 요청한 파일 확인
+    strcpy(ct, ContentType(filename)); // Content-Type 확인
+    SendData(sock, ct, filename); // 응답
+    return 0;
+}
+
+void SendData(int sock, char* ct, char* filename)
+{
+    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    char protocol[] = "HTTP/1.1 200 OK\r\n";
+    char servName[] = "Server:simple web server\r\n";
+    char cntLen[] = "Content-length:2048\r\n";
+    char cntType[BUF_SIZE];
+    char buf[BUF_SIZE];
+    FILE* sendFile;
+    sprintf(cntType, "Content-type:%s\r\n\r\n", ct);
+    if ((sendFile = fopen(filename, "r")) == NULL) {
+        SendErrorMSG(sock);
+        return;
+    }
+
+    /* 헤더 정보 전송 */
+    write(sock, protocol, strlen(protocol));
+    write(sock, servName, strlen(servName));
+    write(sock, cntLen, strlen(cntLen));
+    write(sock, cntType, strlen(cntType));
+
+    /* 요청 data 전송 */
+    while (fgets(buf, BUF_SIZE, sendFile) != NULL)
+        write(sock, buf, strlen(buf));
+    close(sock); // HTTP protocol에 의해 응답 후 종료
+}
+
+char* ContentType(char* file) // Content-Type 구분
+{
+    char extension[BUF_SIZE];
+    char filename[BUF_SIZE];
+    strcpy(filename, file);
+    strtok(filename, ".");
+    strcpy(extension, strtok(NULL, "."));
+    if (!strcmp(extension, "html") || !strcmp(extension, "htm"))
+        return "text/html";
+    else
+        return "text/plain";
+}
+
+void SendErrorMSG(int sock) // Error 처리
+{
+    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    char protocol[] = "HTTP/1.1 400 Bad Request\r\n";
+    char servName[] = "Server:simple web server\r\n";
+    char cntLen[] = "Content-type:text/html\r\n\r\n";
+    char content[] = "<html><head><title>Computer Network</title></head>"
+        "<body><font size=5><br>에러. 요청 파일이나 요청 방식 확인."
+        "</font></body></html>";
+    write(sock, protocol, strlen(protocol));
+    write(sock, servName, strlen(servName));
+    write(sock, cntLen, strlen(cntLen));
+    write(sock, cntType, strlen(cntType));
+    write(sock, content, strlen(content));
+    close(sock);
+}   
 
 int main(int argc, char *argv[])
 {
