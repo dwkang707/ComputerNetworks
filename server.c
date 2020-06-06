@@ -9,7 +9,7 @@
 #include <netinet/in.h>  // constants and structures needed for internet domain addresses, e.g. sockaddr_in
 #include <stdlib.h>
 #include <string.h>
-
+#define BUF_SIZE 1024;
 void error(char *msg)
 {
     perror(msg);
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     int portno; // port number
     socklen_t clilen;
      
-    char buffer[256];
+    char buffer[BUF_SIZE];
      
     /*sockaddr_in: Structure Containing an Internet Address*/
     struct sockaddr_in serv_addr, cli_addr;
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) //Bind the socket to the server address
         error("ERROR on binding");
      
-    listen(sockfd,5); // Listen for socket connections. Backlog queue (connections to wait) is 5
+    listen(sockfd, 5); // Listen for socket connections. Backlog queue (connections to wait) is 5
      
     clilen = sizeof(cli_addr);
     
@@ -62,22 +62,24 @@ int main(int argc, char *argv[])
         if (newsockfd < 0) 
             error("ERROR on accept");
          
-        bzero(buffer, 256);
-        n = read(newsockfd, buffer, 255); //Read is a block function. It will read at most 255 bytes
-        if (n < 0)
-            error("ERROR reading from socket");
+        bzero(buffer, BUF_SIZE);
+        //n = read(newsockfd, buffer, BUF_SIZE - 1); //Read is a block function. It will read at most 255 bytes
+        //if (n < 0)
+            //error("ERROR reading from socket");
+        while (read(newsockfd, buffer, BUF_SIZE - 1) != 0) {
+            printf("%s\n", buffer);
+            n = write(newsockfd, buffer, 18); //NOTE: write function returns the number of bytes actually sent out Ñ> this might be less than the number you told it to send
+            if (n < 0)
+                error("ERROR writing to socket");
+        }
         
-        if(!strcmp(&buffer[0], "GET /index.html HTTP/1.1")) //GET /\0일때
-            printf("hello\n"); 
-        printf("%s\n", buffer);
+        //n = write(newsockfd, buffer, 18); //NOTE: write function returns the number of bytes actually sent out Ñ> this might be less than the number you told it to send
+        //if (n < 0)
+            //error("ERROR writing to socket");
          
-        n = write(newsockfd,"I got your message",18); //NOTE: write function returns the number of bytes actually sent out Ñ> this might be less than the number you told it to send
-        if (n < 0)
-            error("ERROR writing to socket");
-         
-        close(sockfd);
         close(newsockfd);
-     }     
+    }
+    close(sockfd);   
      
-     return 0;
+    return 0;
 }
