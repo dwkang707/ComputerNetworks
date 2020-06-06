@@ -17,6 +17,23 @@ void error(char *msg)
     exit(1);
 }
 
+void SendErrorMSG(int sock) // Error 처리
+{
+    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    char protocol[] = "HTTP/1.1 400 Bad Request\r\n";
+    char servName[] = "Server:simple web server\r\n";
+    char cntLen[] = "Content-type:text/html\r\n\r\n";
+    char content[] = "<html><head><title>Computer Network</title></head>"
+        "<body><font size=5><br>에러. 요청 파일이나 요청 방식 확인."
+        "</font></body></html>";
+    write(sock, protocol, strlen(protocol));
+    write(sock, servName, strlen(servName));
+    write(sock, cntLen, strlen(cntLen));
+    write(sock, cntType, strlen(cntType));
+    write(sock, content, strlen(content));
+    close(sock);
+}
+
 void *socketThread(void *arg)
 {
     int sock = *((int *)arg);
@@ -78,23 +95,6 @@ char* ContentType(char* file) // Content-Type 구분
         return "text/html";
     else
         return "text/plain";
-}
-
-void SendErrorMSG(int sock) // Error 처리
-{
-    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    char protocol[] = "HTTP/1.1 400 Bad Request\r\n";
-    char servName[] = "Server:simple web server\r\n";
-    char cntLen[] = "Content-type:text/html\r\n\r\n";
-    char content[] = "<html><head><title>Computer Network</title></head>"
-        "<body><font size=5><br>에러. 요청 파일이나 요청 방식 확인."
-        "</font></body></html>";
-    write(sock, protocol, strlen(protocol));
-    write(sock, servName, strlen(servName));
-    write(sock, cntLen, strlen(cntLen));
-    write(sock, cntType, strlen(cntType));
-    write(sock, content, strlen(content));
-    close(sock);
 }   
 
 int main(int argc, char *argv[])
