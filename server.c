@@ -104,6 +104,7 @@ int main(int argc, char *argv[])
     int sockfd, newsockfd; //descriptors rturn from socket and accept system calls
     int portno; // port number
     int fd; // file descriptor -> html, jpg, pdf, gif, mp3 등의 확장자를 가진 파일을 읽으려고 사용
+    FILE *fp; // high-level file descriptor
     socklen_t clilen;
     pid_t pid; // fork()시 pid가 저장됌 -> -1: 오류, 0: child process, 0 < pid: parent process
      
@@ -167,11 +168,12 @@ int main(int argc, char *argv[])
 
             // strncmp(A, B, size_t n): A와 B 문자열을 n 만큼 비교 -> A가 길면 0보다 큰 값, B가 길면 0보다 작은 값, 같으면 0 return
             if (!strncmp(buffer, "GET /index.html", 15)) {
-                fd = open("index.html", O_RDONLY);
+                //fd = open("index.html", O_RDONLY);
+                fp = fopen("index.html", "r");
                 //write(fd, newsockfd, 10);
                 read(fd, buf, 400);
-                sendfile(newsockfd, fd, NULL, 400);
-                close(fd);
+                sendfile(newsockfd, fp, NULL, 400);
+                fclose(fp);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
                 fd = open("image.jpg", O_RDONLY);
