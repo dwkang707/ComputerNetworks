@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
                 fd = open("index.html", O_RDONLY);
                 //write(fd, newsockfd, 10);
                 read(fd, buf, 400);
-                sendfile(fd, newsockfd, NULL, 400);
+                sendfile(newsockfd, fd, NULL, 400);
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
