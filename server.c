@@ -9,6 +9,7 @@
 #include <netinet/in.h>  // constants and structures needed for internet domain addresses, e.g. sockaddr_in
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h> // low-level file open
 #define BUF_SIZE 1024
 
 void error(char *msg)
