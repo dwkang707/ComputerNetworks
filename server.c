@@ -16,7 +16,7 @@ void error(char *msg)
     perror(msg);
     exit(1);
 }
-
+/*
 void SendErrorMSG(int sock) // Error 처리
 {
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -63,13 +63,13 @@ void SendData(int sock, char* ct, char* filename)
         return;
     }
 
-    /* 헤더 정보 전송 */
+    // 헤더 정보 전송
     write(sock, protocol, strlen(protocol));
     write(sock, servName, strlen(servName));
     write(sock, cntLen, strlen(cntLen));
     write(sock, cntType, strlen(cntType));
 
-    /* 요청 data 전송 */
+    // 요청 data 전송
     while (fgets(buf, BUF_SIZE, sendFile) != NULL)
         write(sock, buf, strlen(buf));
     close(sock); // HTTP protocol에 의해 응답 후 종료
@@ -96,12 +96,14 @@ void *socketThread(void *arg)
     strcpy(ct, ContentType(filename)); // Content-Type 확인
     SendData(sock, ct, filename); // 응답
 }
-
+*/
 int main(int argc, char *argv[])
 {
     int sockfd, newsockfd; //descriptors rturn from socket and accept system calls
     int portno; // port number
+    int fd; // file descriptor -> html, jpg, pdf, gif, mp3 등의 확장자를 가진 파일을 읽으려고 사용
     socklen_t clilen;
+    pid_t pid; // fork()시 pid가 저장됌 -> -1: 오류, 0: child process, 0 < pid: parent process
      
     char buffer[BUF_SIZE];
      
@@ -140,18 +142,58 @@ int main(int argc, char *argv[])
           2) the new socket descriptor will be used for subsequent communication with the newly connected client.
         */
         newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-        if (newsockfd < 0) 
+        if (newsockfd < 0) {
             error("ERROR on accept");
+            continue;
+        }
          
         bzero(buffer, BUF_SIZE);
         //n = read(newsockfd, buffer, BUF_SIZE - 1); //Read is a block function. It will read at most 255 bytes
         //if (n < 0)
             //error("ERROR reading from socket");
-        while (read(newsockfd, buffer, BUF_SIZE - 1) != 0) {
+        pid = fork();
+        if (pid < 0) { // fork error
+            perror("fork error");
+            exit(1);
+        }
+        else if (pid == 0) {// child process
+            close(sockfd);
+            memset(buffer, 0, 2048);
+            read(newsockfd, buffer, 2047);
             printf("%s\n", buffer);
-            n = write(newsockfd, buffer, 18); //NOTE: write function returns the number of bytes actually sent out Ñ> this might be less than the number you told it to send
-            if (n < 0)
-                error("ERROR writing to socket");
+
+            if (!strncmp(buffer, "GET /index.html", 16)) {
+                fd = open("index.html", O_RDONLY);
+                sendfile(newsockfd, fd, NULL, 1000);
+                close(fd);
+            }
+            else if (!strncmp(buffer, "GET /image.jpg", 16)) {
+                fd = open("image.jpg", O_RDONLY);
+                sendfile(newsockfd, fd, NULL, 35000);
+                close(fd);
+            }
+            else if (!strncmp(buffer, "GET /motion.gif", 16)) {
+                fd = open("motion.gif", O_RDONLY);
+                sendfile(newsockfd, fd, NULL, 1000000);
+                close(fd);
+            }
+            else if (!strncmp(buffer, "GET /pdf_file.pdf", 16)) {
+                fd = open("pdf_file.pdf", O_RDONLY);
+                sendfile(newsockfd, fd, NULL, 21000);
+                close(fd);
+            }
+            /*
+            else if (!strncmp(buffer, "GET /music.mp3", 16)) {
+                fd = open("music.mp3", O_RDONLY);
+                sendfile(newsockfd, fd, NULL, 35000);
+                close(fd);
+            }
+            */
+            else {
+                n = write(newsockfd, buffer, 18); //NOTE: write function returns the number of bytes actually sent out Ñ> this might be less than the number you told it to send
+                if (n < 0)
+                    error("ERROR writing to socket");
+            }
         }
         
         //n = write(newsockfd, buffer, 18); //NOTE: write function returns the number of bytes actually sent out Ñ> this might be less than the number you told it to send
@@ -159,8 +201,6 @@ int main(int argc, char *argv[])
             //error("ERROR writing to socket");
          
         close(newsockfd);
-    }
-    close(sockfd);   
-     
+    }  
     return 0;
 }
