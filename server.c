@@ -167,8 +167,8 @@ int main(int argc, char *argv[])
             // strncmp(A, B, size_t n): A와 B 문자열을 n 만큼 비교 -> A가 길면 0보다 큰 값, B가 길면 0보다 작은 값, 같으면 0 return
             if (!strncmp(buffer, "GET /index.html", 15)) {
                 fd = open("index.html", O_RDONLY);
-                write(newsockfd, fd, 10);
-                //sendfile(newsockfd, fd, NULL, 1000);
+                //write(fd, newsockfd, 10);
+                sendfile(fd, newsockfd, NULL, 1000);
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
