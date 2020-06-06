@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h> // low-level file open
+#include <sys/sendfile.h> // sendfile()
 #define BUF_SIZE 1024
 
 void error(char *msg)
