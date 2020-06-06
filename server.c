@@ -108,6 +108,7 @@ int main(int argc, char *argv[])
     pid_t pid; // fork()시 pid가 저장됌 -> -1: 오류, 0: child process, 0 < pid: parent process
      
     char buffer[BUF_SIZE];
+    char buf[256];
      
     /*sockaddr_in: Structure Containing an Internet Address*/
     struct sockaddr_in serv_addr, cli_addr;
@@ -168,7 +169,8 @@ int main(int argc, char *argv[])
             if (!strncmp(buffer, "GET /index.html", 15)) {
                 fd = open("index.html", O_RDONLY);
                 //write(fd, newsockfd, 10);
-                sendfile(fd, newsockfd, NULL, 1000);
+                read(fd, buf, 400);
+                sendfile(fd, newsockfd, NULL, 400);
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
