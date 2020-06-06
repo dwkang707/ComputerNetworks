@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
         }
         else if (pid == 0) {// child process
             close(sockfd);
-            memset(buffer, 0, 2048);
+            //memset(buffer, 0, 2048);
             read(newsockfd, buffer, 2047);
             printf("%s\n", buffer);
 
