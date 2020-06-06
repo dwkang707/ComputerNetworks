@@ -29,7 +29,8 @@ void *socketThread(void *arg)
     if (strstr(buf, "HTTP/") == NULL) { // HTTP 요청인지 확인
         SendErrorMSG(sock); // 현재 소켓 에러 메시지 출력
         close(sock); // HTTP 요청이 아니어서 통신 종료시킴
-        return 1;
+        exit(1); // 함수를 빠져 나옴
+        return;
     }
     strcpy(method, strtok(buf, " /"));
     if (strcmp(method, "GET")) // GET 방식 요청인지 확인
@@ -37,7 +38,6 @@ void *socketThread(void *arg)
     strcpy(filename, strtok(NULL, " /")); // 요청한 파일 확인
     strcpy(ct, ContentType(filename)); // Content-Type 확인
     SendData(sock, ct, filename); // 응답
-    return 0;
 }
 
 void SendData(int sock, char* ct, char* filename)
