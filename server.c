@@ -48,28 +48,6 @@ char* ContentType(char* file) // Content-Type 구분
         return "text/plain";
 } 
 
-void *socketThread(void *arg)
-{
-    int sock = *((int *)arg);
-    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    char buf[BUF_SIZE]; // 요청 메시지
-    char method[BUF_SIZE]; // GET, POST 방식 저장
-    char ct[BUF_SIZE]; // Content-Type 저장
-    char filename[BUF_SIZE]; // 요청한 파일 이름 저장
-    read(sock, buf, BUF_SIZE - 1);
-    if (strstr(buf, "HTTP/") == NULL) { // HTTP 요청인지 확인
-        SendErrorMSG(sock); // 현재 소켓 에러 메시지 출력
-        close(sock); // HTTP 요청이 아니어서 통신 종료시킴
-        exit(1); // 함수를 빠져 나옴
-    }
-    strcpy(method, strtok(buf, " /"));
-    if (strcmp(method, "GET")) // GET 방식 요청인지 확인
-        SendErrorMSG(sock); // 현재 소켓 에러 메시지 출력
-    strcpy(filename, strtok(NULL, " /")); // 요청한 파일 확인
-    strcpy(ct, ContentType(filename)); // Content-Type 확인
-    SendData(sock, ct, filename); // 응답
-}
-
 void SendData(int sock, char* ct, char* filename)
 {
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -97,7 +75,27 @@ void SendData(int sock, char* ct, char* filename)
     close(sock); // HTTP protocol에 의해 응답 후 종료
 }
 
-  
+void *socketThread(void *arg)
+{
+    int sock = *((int *)arg);
+    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    char buf[BUF_SIZE]; // 요청 메시지
+    char method[BUF_SIZE]; // GET, POST 방식 저장
+    char ct[BUF_SIZE]; // Content-Type 저장
+    char filename[BUF_SIZE]; // 요청한 파일 이름 저장
+    read(sock, buf, BUF_SIZE - 1);
+    if (strstr(buf, "HTTP/") == NULL) { // HTTP 요청인지 확인
+        SendErrorMSG(sock); // 현재 소켓 에러 메시지 출력
+        close(sock); // HTTP 요청이 아니어서 통신 종료시킴
+        exit(1); // 함수를 빠져 나옴
+    }
+    strcpy(method, strtok(buf, " /"));
+    if (strcmp(method, "GET")) // GET 방식 요청인지 확인
+        SendErrorMSG(sock); // 현재 소켓 에러 메시지 출력
+    strcpy(filename, strtok(NULL, " /")); // 요청한 파일 확인
+    strcpy(ct, ContentType(filename)); // Content-Type 확인
+    SendData(sock, ct, filename); // 응답
+}
 
 int main(int argc, char *argv[])
 {
