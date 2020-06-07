@@ -185,7 +185,8 @@ int main(int argc, char *argv[])
                 write(newsockfd, "\nContent-Type: text/html", strlen("\nContent-Type: text/html"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
                 write(newsockfd, (char*)strlen(buf), strlen(buf));
-                write(newsockfd, "buf", strlen(3));
+                write(newsockfd, "\n\n", 2);
+                write(newsockfd, "buf", 3);
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
