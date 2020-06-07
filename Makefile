@@ -4,7 +4,7 @@ TARGETS=server
 all: $(TARGETS)
 .PHONY: all
 %:
-    $(CC) $(CFLAGS) $@ $@.c
+	$(CC) $(CFLAGS) $@ $@.c
 
 clean:
-    rm $(TARGETS)
+	rm $(TARGETS)
