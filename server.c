@@ -109,7 +109,8 @@ int main(int argc, char *argv[])
     pid_t pid; // fork()시 pid가 저장됌 -> -1: 오류, 0: child process, 0 < pid: parent process
      
     char buffer[BUF_SIZE];
-    char buf[20000];
+    char buf[1000];
+    char imageBuf[20000];
     char pdfBuf[24000];
     // Only this line has been changed. Everything is same.
     char *responseHeader = "HTTP/1.1 200 OK"; //\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
@@ -155,7 +156,8 @@ int main(int argc, char *argv[])
         }
          
         bzero(buffer, BUF_SIZE);
-        bzero(buf, 20000);
+        bzero(buf, 1000);
+        bzero(imageBuf, 20000);
         bzero(pdfBuf, 24000);
         //n = read(newsockfd, buffer, BUF_SIZE - 1); //Read is a block function. It will read at most 255 bytes
         //if (n < 0)
@@ -194,14 +196,14 @@ int main(int argc, char *argv[])
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
                 fd = open("image.jpg", O_RDONLY);
-                read(fd, buf, 20000);
+                read(fd, imageBuf, 20000);
                 //sendfile(newsockfd, fd, NULL, 35000);
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: image/jpeg", strlen("\nContent-Type: image/jpeg"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
-                write(newsockfd, (char)strlen(buf), strlen(buf));
+                write(newsockfd, (char*)strlen(imageBuf), strlen(imageBuf));
                 write(newsockfd, "\n\n", strlen("\n\n"));
-                write(newsockfd, buf, strlen(buf));
+                write(newsockfd, imageBuf, strlen(imageBuf));
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /motion.gif", 16)) {
@@ -209,7 +211,7 @@ int main(int argc, char *argv[])
                 sendfile(newsockfd, fd, NULL, 1000000);
                 close(fd);
             }
-            else if (!strncmp(buffer, "GET /pdf_file.pdf", 16)) {
+            else if (!strncmp(buffer, "GET /pdf_file.pdf", 17)) {
                 fd = open("pdf_file.pdf", O_RDONLY);
                 read(fd, pdfBuf, 24000);
                 
