@@ -176,8 +176,9 @@ int main(int argc, char *argv[])
                 read(fd, buf, 400);
                 //sendfile(newsockfd, fp, NULL, 400);
                 strcat(responseHeadder, "\nContent-Type: text/html");
-                strcat(responseHeadder, "Content-Length: ");
-                strcat(responseHeadder, strlen(buf));
+                strcat(responseHeadder, "\nContent-Length: ");
+                strcat(responseHeadder, (char*)strlen(buf));
+                strcat(responseHeadder, "\n\n");
                 strcat(responseHeadder, buf);
                 write(newsockfd, responseHeadder, strlen(responseHeadder));
                 close(fd);
