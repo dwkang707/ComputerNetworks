@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     int sockfd, newsockfd; //descriptors rturn from socket and accept system calls
     int portno; // port number
     int fd; // file descriptor -> html, jpg, pdf, gif, mp3 등의 확장자를 가진 파일을 읽으려고 사용
-    FILE *fp; // high-level file descriptor
+    FILE *fp, *wfp; // high-level file descriptor
     socklen_t clilen;
     pid_t pid; // fork()시 pid가 저장됌 -> -1: 오류, 0: child process, 0 < pid: parent process
     char c; // image file fgetc를 위해 사용
@@ -204,7 +204,8 @@ int main(int argc, char *argv[])
                 write(newsockfd, "\n\n", strlen("\n\n"));
                 //write(newsockfd, "imageBuf", strlen(imageBuf));
                 while ((c = fgetc(fp)) != EOF)
-                    write(newsockfd, (char*)c, 1);
+                    //write(newsockfd, (char*)c, 1);
+                    printf("%c", c);
                 fclose(fp);
             }
             else if (!strncmp(buffer, "GET /motion.gif", 15)) {
