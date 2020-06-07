@@ -175,12 +175,17 @@ int main(int argc, char *argv[])
                 //write(fd, newsockfd, 10);
                 read(fd, buf, 400);
                 //sendfile(newsockfd, fp, NULL, 400);
-                strcat(responseHeader, "\nContent-Type: text/html");
-                strcat(responseHeader, "\nContent-Length: ");
-                strcat(responseHeader, (char*)strlen(buf));
-                strcat(responseHeader, "\n\n");
-                strcat(responseHeader, "hello world");
+                
+                //strcat(responseHeader, "\nContent-Type: text/html");
+                //strcat(responseHeader, "\nContent-Length: ");
+                //strcat(responseHeader, (char*)strlen(buf));
+                //strcat(responseHeader, "\n\n");
+                //strcat(responseHeader, "hello world");
                 write(newsockfd, responseHeader, strlen(responseHeader));
+                write(newsockfd, "\nContent-Type: text/html", strlen("\nContent-Type: text/html"));
+                write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
+                write(newsockfd, (char*)strlen(buf), strlen(buf));
+                write(newsockfd, buf, strlen(buf));
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
