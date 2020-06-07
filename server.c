@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
      
     char buffer[BUF_SIZE];
     char buf[BUF_SIZE];
+    char pdfBuf[24000];
     // Only this line has been changed. Everything is same.
     char *responseHeader = "HTTP/1.1 200 OK"; //\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
      
@@ -154,6 +155,8 @@ int main(int argc, char *argv[])
         }
          
         bzero(buffer, BUF_SIZE);
+        bzero(buf, BIF_SIZE);
+        bzero(pdfBuf, 24000);
         //n = read(newsockfd, buffer, BUF_SIZE - 1); //Read is a block function. It will read at most 255 bytes
         //if (n < 0)
             //error("ERROR reading from socket");
@@ -208,7 +211,15 @@ int main(int argc, char *argv[])
             }
             else if (!strncmp(buffer, "GET /pdf_file.pdf", 16)) {
                 fd = open("pdf_file.pdf", O_RDONLY);
-                sendfile(newsockfd, fd, NULL, 21000);
+                read(fd, pdfBuf, 24000);
+                
+                write(newsockfd, responseHeader, strlen(responseHeader));
+                write(newsockfd, "\nContent-Type: application/pdf", strlen("\nContent-Type: application/pdf"));
+                write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
+                write(newsockfd, (char*)strlen(pdfBuf), strlen(pdfBuf));
+                write(newsockfd, "\n\n", 2);
+                write(newsockfd, pdfBuf, strlen(pdfBuf));
+                //sendfile(newsockfd, fd, NULL, 21000);
                 close(fd);
             }
             /*
