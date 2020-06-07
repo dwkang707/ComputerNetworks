@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
     char buffer[BUF_SIZE];
     char buf[1000];
     char imageBuf[20000];
+    char motionBuf[1000000];
     char pdfBuf[24000];
     // Only this line has been changed. Everything is same.
     char *responseHeader = "HTTP/1.1 200 OK"; //\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
@@ -158,6 +159,7 @@ int main(int argc, char *argv[])
         bzero(buffer, BUF_SIZE);
         bzero(buf, 1000);
         bzero(imageBuf, 20000);
+        bzero(motionBuf, 1000000);
         bzero(pdfBuf, 24000);
         //n = read(newsockfd, buffer, BUF_SIZE - 1); //Read is a block function. It will read at most 255 bytes
         //if (n < 0)
@@ -196,7 +198,7 @@ int main(int argc, char *argv[])
             }
             else if (!strncmp(buffer, "GET /image.jpg", 14)) {
                 fd = open("image.jpg", O_RDONLY);
-                read(fd, imageBuf, 20000);
+                read(fd, imageBuf, 19999);
                 //sendfile(newsockfd, fd, NULL, 35000);
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: image/jpeg", strlen("\nContent-Type: image/jpeg"));
@@ -206,14 +208,21 @@ int main(int argc, char *argv[])
                 write(newsockfd, imageBuf, strlen(imageBuf));
                 close(fd);
             }
-            else if (!strncmp(buffer, "GET /motion.gif", 16)) {
+            else if (!strncmp(buffer, "GET /motion.gif", 15)) {
                 fd = open("motion.gif", O_RDONLY);
-                sendfile(newsockfd, fd, NULL, 1000000);
+                read(fd, motionBuf, 999999);
+                //sendfile(newsockfd, fd, NULL, 1000000);
+                write(newsockfd, responseHeader, strlen(responseHeader));
+                write(newsockfd, "\nContent-Type: image/gif", strlen("\nContent-Type: image/gif"));
+                write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
+                write(newsockfd, (char*)strlen(motionBuf), strlen(motionBuf));
+                write(newsockfd, "\n\n", strlen("\n\n"));
+                write(newsockfd, motionBuf, strlen(motionBuf));
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /pdf_file.pdf", 17)) {
                 fd = open("pdf_file.pdf", O_RDONLY);
-                read(fd, pdfBuf, 24000);
+                read(fd, pdfBuf, 23999);
                 
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: application/pdf", strlen("\nContent-Type: application/pdf"));
