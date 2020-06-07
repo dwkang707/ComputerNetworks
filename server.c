@@ -191,7 +191,14 @@ int main(int argc, char *argv[])
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
                 fd = open("image.jpg", O_RDONLY);
-                sendfile(newsockfd, fd, NULL, 35000);
+                read(fd, buf, 35000);
+                //sendfile(newsockfd, fd, NULL, 35000);
+                write(newsockfd, responseHeader, strlen(responseHeader));
+                write(newsockfd, "\nContent-Type: image/jpeg", strlen("\nContent-Type: image/jpeg"));
+                write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
+                write(newsockfd, (char*)strlen(buf), strlen(buf));
+                write(newsockfd, "\n\n", 2);
+                write(newsockfd, buf, strlen(buf));
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /motion.gif", 16)) {
