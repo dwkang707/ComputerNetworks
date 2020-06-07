@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     char buffer[BUF_SIZE];
     char buf[256];
     // Only this line has been changed. Everything is same.
-    char *hello = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+    char *responseHeadder = "HTTP/1.1 200 OK"; //\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
      
     /*sockaddr_in: Structure Containing an Internet Address*/
     struct sockaddr_in serv_addr, cli_addr;
@@ -175,7 +175,11 @@ int main(int argc, char *argv[])
                 //write(fd, newsockfd, 10);
                 read(fd, buf, 400);
                 //sendfile(newsockfd, fp, NULL, 400);
-                write(newsockfd, "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!", strlen(hello));
+                strcat(responseHeadder, "\nContent-Type: text/html");
+                strcat(responseHeadder, "Content-Length: ");
+                strcat(responseHeadder, strlen(buf));
+                strcat(responseHeadder, buf);
+                write(newsockfd, responseHeadder, strlen(responseHeadder));
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
