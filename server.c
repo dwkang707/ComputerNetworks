@@ -174,6 +174,7 @@ int main(int argc, char *argv[])
                 //fp = fopen("index.html", "r");
                 //write(fd, newsockfd, 10);
                 read(fd, buf, 400);
+                printf("%s\n", buf);
                 //sendfile(newsockfd, fp, NULL, 400);
                 strcat(responseHeadder, "\nContent-Type: text/html");
                 strcat(responseHeadder, "\nContent-Length: ");
