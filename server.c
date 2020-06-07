@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
                 write(newsockfd, (char*)strlen(buf), strlen(buf));
                 write(newsockfd, "\n\n", 2);
-                write(newsockfd, "buf", 3);
+                write(newsockfd, buf, strlen(buf));
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
