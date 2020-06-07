@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     pid_t pid; // fork()시 pid가 저장됌 -> -1: 오류, 0: child process, 0 < pid: parent process
      
     char buffer[BUF_SIZE];
-    char buf[BUF_SIZE];
+    char buf[20000];
     char pdfBuf[24000];
     // Only this line has been changed. Everything is same.
     char *responseHeader = "HTTP/1.1 200 OK"; //\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
         }
          
         bzero(buffer, BUF_SIZE);
-        bzero(buf, BIF_SIZE);
+        bzero(buf, 20000);
         bzero(pdfBuf, 24000);
         //n = read(newsockfd, buffer, BUF_SIZE - 1); //Read is a block function. It will read at most 255 bytes
         //if (n < 0)
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
                 fd = open("image.jpg", O_RDONLY);
-                read(fd, buf, 35000);
+                read(fd, buf, 20000);
                 //sendfile(newsockfd, fd, NULL, 35000);
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: image/jpeg", strlen("\nContent-Type: image/jpeg"));
