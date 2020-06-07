@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
                 write(newsockfd, buf, strlen(buf));
                 close(fd);
             }
-            else if (!strncmp(buffer, "GET /image.jpg", 15)) {
+            else if (!strncmp(buffer, "GET /image.jpg", 14)) {
                 fd = open("image.jpg", O_RDONLY);
                 read(fd, imageBuf, 20000);
                 //sendfile(newsockfd, fd, NULL, 35000);
