@@ -107,6 +107,7 @@ int main(int argc, char *argv[])
     FILE *fp; // high-level file descriptor
     socklen_t clilen;
     pid_t pid; // fork()시 pid가 저장됌 -> -1: 오류, 0: child process, 0 < pid: parent process
+    char c; // image file fgetc를 위해 사용
      
     char buffer[BUF_SIZE];
     char buf[1000];
@@ -183,11 +184,6 @@ int main(int argc, char *argv[])
                 read(fd, buf, 400);
                 //sendfile(newsockfd, fp, NULL, 400);
                 
-                //strcat(responseHeader, "\nContent-Type: text/html");
-                //strcat(responseHeader, "\nContent-Length: ");
-                //strcat(responseHeader, (char*)strlen(buf));
-                //strcat(responseHeader, "\n\n");
-                //strcat(responseHeader, "hello world");
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: text/html", strlen("\nContent-Type: text/html"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
@@ -197,16 +193,19 @@ int main(int argc, char *argv[])
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 14)) {
-                fd = open("image.jpg", O_RDONLY);
-                read(fd, imageBuf, 19999);
+                //fd = open("image.jpg", O_RDONLY);
+                //read(fd, imageBuf, 19999);
+                fp = fopen("image.jpg", "r");
                 //sendfile(newsockfd, fd, NULL, 35000);
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: image/jpeg", strlen("\nContent-Type: image/jpeg"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
                 write(newsockfd, (char*)strlen(imageBuf), strlen(imageBuf));
                 write(newsockfd, "\n\n", strlen("\n\n"));
-                write(newsockfd, "imageBuf", strlen(imageBuf));
-                close(fd);
+                //write(newsockfd, "imageBuf", strlen(imageBuf));
+                while ((c = fgetc(fp)) != EOF)
+                    write(newsockfd, c, strlen(c));
+                fclose(fp);
             }
             else if (!strncmp(buffer, "GET /motion.gif", 15)) {
                 fd = open("motion.gif", O_RDONLY);
