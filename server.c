@@ -18,87 +18,7 @@ void error(char *msg)
     perror(msg);
     exit(1);
 }
-/*
-void SendErrorMSG(int sock) // Error 처리
-{
-    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    char protocol[] = "HTTP/1.1 400 Bad Request\r\n";
-    char servName[] = "Server:simple web server\r\n";
-    char cntLen[] = "Content-length:2048\r\n";
-    char cntType[] = "Content-type:text/html\r\n\r\n";
-    char content[] = "<html><head><title>Computer Network</title></head>"
-        "<body><font size=5><br>에러. 요청 파일이나 요청 방식 확인."
-        "</font></body></html>";
-    write(sock, protocol, strlen(protocol));
-    write(sock, servName, strlen(servName));
-    write(sock, cntLen, strlen(cntLen));
-    write(sock, cntType, strlen(cntType));
-    write(sock, content, strlen(content));
-    close(sock);
-}
 
-char* ContentType(char* file) // Content-Type 구분
-{
-    char extension[BUF_SIZE];
-    char filename[BUF_SIZE];
-    strcpy(filename, file);
-    strtok(filename, ".");
-    strcpy(extension, strtok(NULL, "."));
-    if (!strcmp(extension, "html") || !strcmp(extension, "htm"))
-        return "text/html";
-    else
-        return "text/plain";
-} 
-
-void SendData(int sock, char* ct, char* filename)
-{
-    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    char protocol[] = "HTTP/1.1 200 OK\r\n";
-    char servName[] = "Server:simple web server\r\n";
-    char cntLen[] = "Content-length:2048\r\n";
-    char cntType[BUF_SIZE];
-    char buf[BUF_SIZE];
-    FILE* sendFile;
-    sprintf(cntType, "Content-type:%s\r\n\r\n", ct);
-    if ((sendFile = fopen(filename, "r")) == NULL) {
-        SendErrorMSG(sock);
-        return;
-    }
-
-    // 헤더 정보 전송
-    write(sock, protocol, strlen(protocol));
-    write(sock, servName, strlen(servName));
-    write(sock, cntLen, strlen(cntLen));
-    write(sock, cntType, strlen(cntType));
-
-    // 요청 data 전송
-    while (fgets(buf, BUF_SIZE, sendFile) != NULL)
-        write(sock, buf, strlen(buf));
-    close(sock); // HTTP protocol에 의해 응답 후 종료
-}
-
-void *socketThread(void *arg)
-{
-    int sock = *((int *)arg);
-    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    char buf[BUF_SIZE]; // 요청 메시지
-    char method[BUF_SIZE]; // GET, POST 방식 저장
-    char ct[BUF_SIZE]; // Content-Type 저장
-    char filename[BUF_SIZE]; // 요청한 파일 이름 저장
-    read(sock, buf, BUF_SIZE - 1);
-    if (strstr(buf, "HTTP/") == NULL) { // HTTP 요청인지 확인
-        SendErrorMSG(sock); // 현재 소켓 에러 메시지 출력
-        close(sock); // HTTP 요청이 아니어서 통신 종료시킴
-        exit(1); // 함수를 빠져 나옴
-    }
-    strcpy(method, strtok(buf, " /"));
-    if (strcmp(method, "GET")) // GET 방식 요청인지 확인
-        SendErrorMSG(sock); // 현재 소켓 에러 메시지 출력
-    strcpy(filename, strtok(NULL, " /")); // 요청한 파일 확인
-    strcpy(ct, ContentType(filename)); // Content-Type 확인
-    SendData(sock, ct, filename); // 응답
-}
-*/
 int main(int argc, char *argv[])
 {
     int sockfd, newsockfd; //descriptors rturn from socket and accept system calls
@@ -114,8 +34,8 @@ int main(int argc, char *argv[])
     char imageBuf[20000];
     char motionBuf[1000000];
     char pdfBuf[24000];
-    // Only this line has been changed. Everything is same.
-    char *responseHeader = "HTTP/1.1 200 OK"; //\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+    
+    char *responseHeader = "HTTP/1.1 200 OK"; // 요청이 올바를때 HTTP response header
      
     /*sockaddr_in: Structure Containing an Internet Address*/
     struct sockaddr_in serv_addr, cli_addr;
@@ -156,15 +76,18 @@ int main(int argc, char *argv[])
             error("ERROR on accept");
             continue;
         }
-         
+        
+        // 각 파일에 대한 buffer의 바이트 스트림을 0으로 채운다.
         bzero(buffer, BUF_SIZE);
         bzero(buf, 1000);
         bzero(imageBuf, 20000);
         bzero(motionBuf, 1000000);
         bzero(pdfBuf, 24000);
+
         //n = read(newsockfd, buffer, BUF_SIZE - 1); //Read is a block function. It will read at most 255 bytes
         //if (n < 0)
             //error("ERROR reading from socket");
+
         pid = fork();
         if (pid < 0) { // fork error
             perror("fork error");
@@ -172,7 +95,6 @@ int main(int argc, char *argv[])
         }
         else if (pid == 0) {// child process
             close(sockfd);
-            //memset(buffer, 0, 2048);
             read(newsockfd, buffer, 2047);
             printf("%s\n", buffer);
 
