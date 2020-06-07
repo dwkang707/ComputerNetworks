@@ -109,9 +109,9 @@ int main(int argc, char *argv[])
     pid_t pid; // fork()시 pid가 저장됌 -> -1: 오류, 0: child process, 0 < pid: parent process
      
     char buffer[BUF_SIZE];
-    char buf[256];
+    char buf[BUF_SIZE];
     // Only this line has been changed. Everything is same.
-    char *responseHeadder = "HTTP/1.1 200 OK"; //\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+    char *responseHeader = "HTTP/1.1 200 OK"; //\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
      
     /*sockaddr_in: Structure Containing an Internet Address*/
     struct sockaddr_in serv_addr, cli_addr;
@@ -175,13 +175,12 @@ int main(int argc, char *argv[])
                 //write(fd, newsockfd, 10);
                 read(fd, buf, 400);
                 //sendfile(newsockfd, fp, NULL, 400);
-                strcat(responseHeadder, "\nContent-Type: text/html");
-                strcat(responseHeadder, "\nContent-Length: ");
-                strcat(responseHeadder, (char*)strlen(buf));
-                strcat(responseHeadder, "\n\n");
-                strcat(responseHeadder, "hello world");
-                printf("%s\n", responseHeadder);
-                write(newsockfd, responseHeadder, strlen(responseHeadder));
+                strcat(responseHeader, "\nContent-Type: text/html");
+                strcat(responseHeader, "\nContent-Length: ");
+                strcat(responseHeader, (char*)strlen(buf));
+                strcat(responseHeader, "\n\n");
+                strcat(responseHeader, "hello world");
+                write(newsockfd, responseHeader, strlen(responseHeader));
                 close(fd);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
