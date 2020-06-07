@@ -99,13 +99,14 @@ int main(int argc, char *argv[])
             printf("%s\n", buffer);
 
             // strncmp(A, B, size_t n): A와 B 문자열을 n 만큼 비교 -> A가 길면 0보다 큰 값, B가 길면 0보다 작은 값, 같으면 0 return
-            if (!strncmp(buffer, "GET /index.html", 15)) {
-                fd = open("index.html", O_RDONLY);
+            if (!strncmp(buffer, "GET /index.html", 15)) { // client가 html 파일을 요청한 경우
+                fd = open("index.html", O_RDONLY); // index.html 파일을 열어서 file descriptor에 저장
                 //fp = fopen("index.html", "r");
                 //write(fd, newsockfd, 10);
-                read(fd, buf, 400);
+                read(fd, buf, 400); // fd에 읽어온 파일을 버퍼에 저장
                 //sendfile(newsockfd, fp, NULL, 400);
                 
+                // HTTP Response Header
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: text/html", strlen("\nContent-Type: text/html"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
@@ -114,11 +115,13 @@ int main(int argc, char *argv[])
                 write(newsockfd, buf, strlen(buf));
                 close(fd);
             }
-            else if (!strncmp(buffer, "GET /image.jpg", 14)) {
+            else if (!strncmp(buffer, "GET /image.jpg", 14)) { // client가 jpg 파일을 요청한 경우
                 //fd = open("image.jpg", O_RDONLY);
                 //read(fd, imageBuf, 19999);
                 fp = fopen("image.jpg", "r");
                 //sendfile(newsockfd, fd, NULL, 35000);
+
+                // HTTP Response Header
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: image/jpeg", strlen("\nContent-Type: image/jpeg"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
@@ -131,10 +134,12 @@ int main(int argc, char *argv[])
                 send(newsockfd, fp, 20000, 0);
                 fclose(fp);
             }
-            else if (!strncmp(buffer, "GET /motion.gif", 15)) {
+            else if (!strncmp(buffer, "GET /motion.gif", 15)) { // client가 gif 파일을 요청한 경우
                 fd = open("motion.gif", O_RDONLY);
                 read(fd, motionBuf, 999999);
                 //sendfile(newsockfd, fd, NULL, 1000000);
+
+                // HTTP Response Header
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: image/gif", strlen("\nContent-Type: image/gif"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
@@ -143,10 +148,11 @@ int main(int argc, char *argv[])
                 write(newsockfd, motionBuf, strlen(motionBuf));
                 close(fd);
             }
-            else if (!strncmp(buffer, "GET /pdf_file.pdf", 17)) {
+            else if (!strncmp(buffer, "GET /pdf_file.pdf", 17)) { // client가 pdf 파일을 요청한 경우
                 fd = open("pdf_file.pdf", O_RDONLY);
                 read(fd, pdfBuf, 23999);
                 
+                // HTTP Response Header
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: application/pdf", strlen("\nContent-Type: application/pdf"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
@@ -156,13 +162,21 @@ int main(int argc, char *argv[])
                 //sendfile(newsockfd, fd, NULL, 21000);
                 close(fd);
             }
-            /*
-            else if (!strncmp(buffer, "GET /music.mp3", 16)) {
+            
+            else if (!strncmp(buffer, "GET /music.mp3", 16)) { // client가 mp3 파일을 요청한 경우
                 fd = open("music.mp3", O_RDONLY);
-                sendfile(newsockfd, fd, NULL, 35000);
+                //sendfile(newsockfd, fd, NULL, 35000);
+
+                // HTTP Response Header
+                write(newsockfd, responseHeader, strlen(responseHeader));
+                write(newsockfd, "\nContent-Type: audio/mp3", strlen("\nContent-Type: audio/mp3"));
+                write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
+                write(newsockfd, (char*)strlen(pdfBuf), strlen(pdfBuf));
+                write(newsockfd, "\n\n", strlen("\n\n"));
+                write(newsockfd, pdfBuf, strlen(pdfBuf));
                 close(fd);
             }
-            */
+            
             else {
                 n = write(newsockfd, buffer, 18); //NOTE: write function returns the number of bytes actually sent out Ñ> this might be less than the number you told it to send
                 if (n < 0)
@@ -174,7 +188,7 @@ int main(int argc, char *argv[])
         //if (n < 0)
             //error("ERROR writing to socket");
          
-        close(newsockfd);
+        close(newsockfd); // client socket close
     }  
     return 0;
 }
