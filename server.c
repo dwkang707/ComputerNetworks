@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
                 write(newsockfd, "\nContent-Type: text/html", strlen("\nContent-Type: text/html"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
                 write(newsockfd, (char*)strlen(buf), strlen(buf));
-                write(newsockfd, "\n\n", 2);
+                write(newsockfd, "\n\n", strlen("\n\n"));
                 write(newsockfd, buf, strlen(buf));
                 close(fd);
             }
@@ -199,8 +199,8 @@ int main(int argc, char *argv[])
                 write(newsockfd, responseHeader, strlen(responseHeader));
                 write(newsockfd, "\nContent-Type: image/jpeg", strlen("\nContent-Type: image/jpeg"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
-                write(newsockfd, (char*)strlen(buf), strlen(buf));
-                write(newsockfd, "\n\n", 2);
+                write(newsockfd, (char)strlen(buf), strlen(buf));
+                write(newsockfd, "\n\n", strlen("\n\n"));
                 write(newsockfd, buf, strlen(buf));
                 close(fd);
             }
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
                 write(newsockfd, "\nContent-Type: application/pdf", strlen("\nContent-Type: application/pdf"));
                 write(newsockfd, "\nContent-Length: ", strlen("\nContent-Length: "));
                 write(newsockfd, (char*)strlen(pdfBuf), strlen(pdfBuf));
-                write(newsockfd, "\n\n", 2);
+                write(newsockfd, "\n\n", strlen("\n\n"));
                 write(newsockfd, pdfBuf, strlen(pdfBuf));
                 //sendfile(newsockfd, fd, NULL, 21000);
                 close(fd);
