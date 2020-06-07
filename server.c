@@ -170,13 +170,13 @@ int main(int argc, char *argv[])
 
             // strncmp(A, B, size_t n): A와 B 문자열을 n 만큼 비교 -> A가 길면 0보다 큰 값, B가 길면 0보다 작은 값, 같으면 0 return
             if (!strncmp(buffer, "GET /index.html", 15)) {
-                //fd = open("index.html", O_RDONLY);
-                fp = fopen("index.html", "r");
+                fd = open("index.html", O_RDONLY);
+                //fp = fopen("index.html", "r");
                 //write(fd, newsockfd, 10);
-                //read(fd, buf, 400);
+                read(fd, buf, 400);
                 //sendfile(newsockfd, fp, NULL, 400);
-                write(newsockfd, hello, strlen(hello));
-                fclose(fp);
+                write(newsockfd, "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!", strlen(hello));
+                close(fd);
             }
             else if (!strncmp(buffer, "GET /image.jpg", 15)) {
                 fd = open("image.jpg", O_RDONLY);
