@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
                 write(newsockfd, "\n\n", strlen("\n\n"));
                 //write(newsockfd, "imageBuf", strlen(imageBuf));
                 while ((c = fgetc(fp)) != EOF)
-                    write(newsockfd, c, strlen(c));
+                    write(newsockfd, (char*)c, 1);
                 fclose(fp);
             }
             else if (!strncmp(buffer, "GET /motion.gif", 15)) {
