@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
                 strcat(responseHeadder, "\nContent-Length: ");
                 strcat(responseHeadder, (char*)strlen(buf));
                 strcat(responseHeadder, "\n\n");
-                strcat(responseHeadder, buf);
+                strcat(responseHeadder, "hello world");
                 write(newsockfd, responseHeadder, strlen(responseHeadder));
                 close(fd);
             }
